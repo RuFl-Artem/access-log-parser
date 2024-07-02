@@ -1,0 +1,6 @@
+*.iml
+.idea/
+access-log-parser-1.iml
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
