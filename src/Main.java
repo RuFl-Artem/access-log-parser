@@ -1,21 +1,27 @@
 import java.util.Scanner;
 
 public class Main {
-    //метод main для себя
     public static void main(String[] args) {
-        //System.out.println("Случайное число от 0 до 1: " + Math.random());
-        System.out.println("Введите текст и нажмите <Enter>: ");
-        String text = new Scanner(System.in).nextLine();
-        System.out.println("Длина текста: "+text.length());
+        System.out.print("Введите число №1 = ");
+        int number1 = new Scanner(System.in).nextInt();
+        System.out.print("Введите число №2 = ");
+        int number2 = new Scanner(System.in).nextInt();
+        System.out.println("Сумма чисел = " + sum(number1, number2));
+        System.out.println("Разность чисел = " + diff(number1, number2));
+        System.out.println("Произведение чисел = " + multiply(number1, number2));
+        System.out.println("Частное чисел = " + quotient(number1, number2));
     }
-    //что ниже то для проверки, метод main для себя
-    //задача 0.1
-    public static int example(int x, int y){
-        return x+y;
+
+    public static int sum(int x, int y) {
+        return x + y;
     }
-    //Курсовой проект
-    public static void course1(){
-        String text = new Scanner(System.in).nextLine();
-        System.out.println("Длина текста: "+text.length());
+    public static int diff(int x, int y) {
+        return x - y;
+    }
+    public static int multiply(int x, int y) {
+        return x * y;
+    }
+    public static double quotient(int x, int y) {
+        return (double) x / y;
     }
 }
