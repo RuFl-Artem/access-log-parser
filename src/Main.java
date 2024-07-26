@@ -1,21 +1,36 @@
+import java.io.File;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        //ввод чисел пользователем в консоль
-        System.out.print("Введите число №1 = ");
-        int number1 = new Scanner(System.in).nextInt();
-        System.out.print("Введите число №2 = ");
-        int number2 = new Scanner(System.in).nextInt();
-
-        System.out.println("Сумма чисел = " + sum(number1, number2));
-        System.out.println("Разность чисел = " + diff(number1, number2));
-        System.out.println("Произведение чисел = " + multiply(number1, number2));
-        //проверка на деление на ноль
-        if (number2 != 0) {
-            System.out.println("Частное чисел = " + quotient(number1, number2));
-        } else {
-            System.out.println("Ошибка: Деление на ноль!");
+        //Счетчик для подсчета количества верно указанных файлов
+        int fileCount = 0;
+        //В бесконечном цикле while запрашиваем путь к файлу
+        while (true) {
+            //Запрашиваем путь к файлу в консоли
+            System.out.print("Введите путь к файлу: ");
+            String path = new Scanner(System.in).nextLine();
+            //Создаем объект File для проверки существования файла
+            File file = new File(path);
+            //Создаем переменную для определения существования файла
+            boolean fileExists = file.exists();
+            //Создаем переменную для определения является ли указанный путь к папке
+            boolean isDirectory = file.isDirectory();
+            //Проверяем, существует ли файл или папка
+            if (!fileExists) {
+                System.out.println("Файл не найден");
+                continue;
+            }
+            //Проверяем, является ли указанный путь к папке
+            if (isDirectory) {
+                System.out.println("Указанный путь является директорией");
+                continue;
+            }
+            //путь ведёт к существующему файлу, выводим в консоль сообщение
+            System.out.println("Путь указан верно");
+            //Увеличиваем счетчик и выводим общее количество верно указанных путей к файлам
+            fileCount++;
+            System.out.println("Это файл номер " + fileCount);
         }
     }
 
