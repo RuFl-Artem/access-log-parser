@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) {
@@ -41,22 +43,30 @@ public class Main {
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
                 int lineCount = 0;
-                int maxLength = 0;
-                int minLength = 1024;
+                int googleBotCount = 0;
+                int yandexBotCount = 0;
                 while ((line = reader.readLine()) != null) {
                     lineCount++;
                     int length = line.length();
+                    //Выбрасываем исключение если строка длиннее 1024 символов
                     if (length > 1024)
-                        throw new LineTooLongException("Cтрока "+ lineCount + " длиннее 1024 символов " + line);
-                        //throw new RuntimeException("Ошибка: строка длиннее 1024 символов");
-                    if (length > maxLength)
-                        maxLength = length;
-                    if (length < minLength)
-                        minLength = length;
+                        throw new LineTooLongException("Cтрока " + lineCount + " длиннее 1024 символов " + line);
+                    //В методе извлекаем userAgent
+                    String userAgent = extractUserAgent(line);
+                    if (userAgent != null) {
+                        if (userAgent.equalsIgnoreCase("Googlebot"))
+                            googleBotCount++;
+                        if (userAgent.equalsIgnoreCase("YandexBot"))
+                            yandexBotCount++;
+                    }
                 }
                 System.out.println("Общее количество строк в файле: " + lineCount);
-                System.out.println("Длина самой длинной строки в файле: " + maxLength);
-                System.out.println("Длина самой короткой строки в файле: " + (minLength == 1024 ? 0 : minLength));
+                System.out.println("Количество запросов от Googlebot: " + googleBotCount);
+                System.out.println("Количество запросов от YandexBot: " + yandexBotCount);
+                double googleBotShare = (double) googleBotCount / lineCount * 100;
+                double yandexBotShare = (double) yandexBotCount / lineCount * 100;
+                System.out.printf("Доля запросов от Googlebot: %.2f%%\n", googleBotShare);
+                System.out.printf("Доля запросов от YandexBot: %.2f%%\n", yandexBotShare);
             } catch (LineTooLongException ex) {
                 System.out.println("Ошибка: " + ex.getMessage());
             } catch (IOException ex) {
@@ -65,23 +75,17 @@ public class Main {
         }
     }
 
-    //метод для вычисления суммы двух чисел
-    public static int sum(int x, int y) {
-        return x + y;
-    }
-
-    //метод для вычисления разности двух чисел
-    public static int diff(int x, int y) {
-        return x - y;
-    }
-
-    //метод для вычисления произведения двух чисел
-    public static int multiply(int x, int y) {
-        return x * y;
-    }
-
-    //частное двух чисел с приведением к типу double
-    public static double quotient(int x, int y) {
-        return (double) x / y;
+    private static String extractUserAgent(String line) {
+        Matcher matcher = Pattern.compile("\\(([^()]*?)\\)[^()]*$").matcher(line);
+        String userAgent = null;
+        if (matcher.find()) {
+            String userAgentFragment = matcher.group(1).trim();
+            String[] parts = userAgentFragment.split(";");
+            if (parts.length >= 2) {
+                String fragment = parts[1].trim();
+                return fragment.split("/")[0].trim();
+            }
+        }
+        return null;
     }
 }
