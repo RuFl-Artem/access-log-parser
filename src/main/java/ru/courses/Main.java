@@ -58,8 +58,6 @@ public class Main {
                         throw new LineTooLongException("Cтрока " + lineCount + " длиннее 1024 символов " + line);
                     LogEntry logEntry = new LogEntry(line);
                     statistics.addEntry(logEntry);
-                    System.out.println(logEntry.getUserAgent().getOperatingSystem());
-                    System.out.println(logEntry.getUserAgent().getBrowser());
                     //В методе извлекаем userAgent
                     String userAgent = extractUserAgent(line);
                     if (userAgent != null) {
