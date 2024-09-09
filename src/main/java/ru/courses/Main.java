@@ -1,4 +1,8 @@
+package ru.courses;
+
 import ru.courses.exception.LineTooLongException;
+import ru.courses.measurement.Statistics;
+import ru.courses.parse.LogEntry;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,6 +43,7 @@ public class Main {
             fileCount++;
             System.out.println("Это файл номер " + fileCount);
 
+            Statistics statistics = new Statistics();
             //Обработка чтения файла
             try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                 String line;
@@ -51,6 +56,10 @@ public class Main {
                     //Выбрасываем исключение если строка длиннее 1024 символов
                     if (length > 1024)
                         throw new LineTooLongException("Cтрока " + lineCount + " длиннее 1024 символов " + line);
+                    LogEntry logEntry = new LogEntry(line);
+                    statistics.addEntry(logEntry);
+                    System.out.println(logEntry.getUserAgent().getOperatingSystem());
+                    System.out.println(logEntry.getUserAgent().getBrowser());
                     //В методе извлекаем userAgent
                     String userAgent = extractUserAgent(line);
                     if (userAgent != null) {
@@ -61,6 +70,8 @@ public class Main {
                     }
                 }
                 System.out.println("Общее количество строк в файле: " + lineCount);
+                System.out.println("Общий объем трафика: " + statistics.getTotalTraffic());
+                System.out.println("Средний объём трафика за час: " + statistics.getTrafficRate());
                 System.out.println("Количество запросов от Googlebot: " + googleBotCount);
                 System.out.println("Количество запросов от YandexBot: " + yandexBotCount);
                 double googleBotShare = (double) googleBotCount / lineCount * 100;
@@ -77,7 +88,6 @@ public class Main {
 
     private static String extractUserAgent(String line) {
         Matcher matcher = Pattern.compile("\\(([^()]*?)\\)[^()]*$").matcher(line);
-        String userAgent = null;
         if (matcher.find()) {
             String userAgentFragment = matcher.group(1).trim();
             String[] parts = userAgentFragment.split(";");
