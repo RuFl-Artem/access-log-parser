@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 public class Main {
     public static void main(String[] args) {
         //Счетчик для подсчета количества верно указанных файлов
@@ -70,6 +69,9 @@ public class Main {
                 System.out.println("Общее количество строк в файле: " + lineCount);
                 System.out.println("Общий объем трафика: " + statistics.getTotalTraffic());
                 System.out.println("Средний объём трафика за час: " + statistics.getTrafficRate());
+
+                System.out.println("Статистика по операционным системам: " + statistics.getOSStatistics());
+
                 System.out.println("Количество запросов от Googlebot: " + googleBotCount);
                 System.out.println("Количество запросов от YandexBot: " + yandexBotCount);
                 double googleBotShare = (double) googleBotCount / lineCount * 100;
