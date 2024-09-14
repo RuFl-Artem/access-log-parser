@@ -71,6 +71,7 @@ public class Main {
                 System.out.println("Средний объём трафика за час: " + statistics.getTrafficRate());
 
                 System.out.println("Статистика по операционным системам: " + statistics.getOSStatistics());
+                System.out.println("Статистика по браузерам: " + statistics.getBrowserStatistics());
 
                 System.out.println("Количество запросов от Googlebot: " + googleBotCount);
                 System.out.println("Количество запросов от YandexBot: " + yandexBotCount);
