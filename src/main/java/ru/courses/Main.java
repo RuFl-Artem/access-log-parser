@@ -73,6 +73,10 @@ public class Main {
                 System.out.println("Статистика по операционным системам: " + statistics.getOSStatistics());
                 System.out.println("Статистика по браузерам: " + statistics.getBrowserStatistics());
 
+                System.out.println("Среднее количество посещений за час: " + statistics.getAverageVisitsHour());
+                System.out.println("Среднее количество ошибочных запросов за час: " + statistics.getAverageInvalidRequestHour());
+                System.out.println("Средняя посещаемость одним пользователем: " + statistics.getAverageVisitsUser());
+
                 System.out.println("Количество запросов от Googlebot: " + googleBotCount);
                 System.out.println("Количество запросов от YandexBot: " + yandexBotCount);
                 double googleBotShare = (double) googleBotCount / lineCount * 100;

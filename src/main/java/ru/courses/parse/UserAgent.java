@@ -89,6 +89,10 @@ public class UserAgent {
             browser.add("Other");
         }
     }
+    //Метод для проверки, в UserAgent информации о боте
+    public static boolean isBot(String userAgent) {
+        return userAgent != null && userAgent.toLowerCase().contains("bot");
+    }
 
     public List<String> getOperatingSystem() {
         return operatingSystem;

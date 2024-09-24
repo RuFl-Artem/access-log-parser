@@ -1,6 +1,7 @@
 package ru.courses.measurement;
 
 import ru.courses.parse.LogEntry;
+import ru.courses.parse.UserAgent;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -17,6 +18,9 @@ public class Statistics {
     private HashMap<String, Integer> osStats;
     private HashSet<String> nonExistingAddres;
     private HashMap<String, Integer> browserStats;
+    private long totalVisits; //Добавлено для подсчета общего количества посещений
+    private long errorRequests; //Добавлено для подсчета ошибочных запросов
+    private HashSet<String> uniqueUserIPs; //Добавлено для хранения уникальных IP-адресов
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -26,6 +30,9 @@ public class Statistics {
         this.osStats = new HashMap<>();
         this.nonExistingAddres = new HashSet<>();
         this.browserStats = new HashMap<>();
+        this.totalVisits = 0;
+        this.errorRequests = 0;
+        this.uniqueUserIPs = new HashSet<>();
     }
 
     public void addEntry(LogEntry entry) {
@@ -34,6 +41,14 @@ public class Statistics {
             minTime = entry.getDateTime();
         if (maxTime == null || entry.getDateTime().isAfter(maxTime))
             maxTime = entry.getDateTime();
+        //Увеличиваем счетчик посещений и записываем уникальный IP-адрес, если это не бот
+        String userAgent = String.valueOf(entry.getUserAgent());
+        if (!UserAgent.isBot(userAgent)) {
+            totalVisits++;
+            uniqueUserIPs.add(entry.getIpAddr());
+        }
+        if (entry.getResponseCode() >= 400)
+            errorRequests++;
         if (entry.getResponseCode() == 200)
             existingAddres.add(entry.getPath());
         else if (entry.getResponseCode() == 404)
@@ -45,7 +60,6 @@ public class Statistics {
             for (String browser : entry.getUserAgent().getBrowser())
                 browserStats.put(browser, browserStats.getOrDefault(browser, 0) + 1);
         }
-
     }
 
     public double getTrafficRate() {
@@ -112,5 +126,36 @@ public class Statistics {
             browserStatsPercentage.put(browser, (double) count / totalBrowserCount);
         }
         return browserStatsPercentage;
+    }
+
+    //Метод подсчёта среднего количества посещений сайта за час
+    public double getAverageVisitsHour() {
+        if (minTime == null || maxTime == null)
+            return 0;
+        long hours = Duration.between(minTime, maxTime).toHours();
+        //Возврат общего количества посещений, если период менее часа
+        if (hours == 0)
+            return totalVisits;
+        //Возвращаем среднее количество посещений за час
+        return (double) totalVisits / hours;
+    }
+
+    //Метод подсчёта среднего количества ошибочных запросов в час
+    public double getAverageInvalidRequestHour() {
+        if (minTime == null || maxTime == null)
+            return 0;
+        long hours = Duration.between(minTime, maxTime).toHours();
+        if (hours == 0)
+            return errorRequests;
+        return (double) errorRequests / hours;
+    }
+
+    //Метод расчёта средней посещаемости одним пользователем
+    public double getAverageVisitsUser() {
+        //Проверка на наличие уникальных пользователей
+        if (uniqueUserIPs.isEmpty())
+            return 0;
+        //Делим общее количество посещений на количество уникальных IP
+        return (double) totalVisits / uniqueUserIPs.size();
     }
 }
