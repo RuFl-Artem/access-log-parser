@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 public class Main {
     public static void main(String[] args) {
         //Счетчик для подсчета количества верно указанных файлов
@@ -76,6 +77,10 @@ public class Main {
                 System.out.println("Среднее количество посещений за час: " + statistics.getAverageVisitsHour());
                 System.out.println("Среднее количество ошибочных запросов за час: " + statistics.getAverageInvalidRequestHour());
                 System.out.println("Средняя посещаемость одним пользователем: " + statistics.getAverageVisitsUser());
+
+                System.out.println("Пиковая посещаемость сайта (в секунду): " + statistics.getMaxVisitsSecond());
+                System.out.println("Список сайтов со ссылками на текущий сайт: " + statistics.getReferrerSites());
+                System.out.println("Максимальная посещаемость одним пользователем: " + statistics.getMaxVisitsByUser());
 
                 System.out.println("Количество запросов от Googlebot: " + googleBotCount);
                 System.out.println("Количество запросов от YandexBot: " + yandexBotCount);

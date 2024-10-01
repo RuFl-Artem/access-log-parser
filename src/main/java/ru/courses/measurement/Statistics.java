@@ -5,9 +5,9 @@ import ru.courses.parse.UserAgent;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Statistics {
     private long totalTraffic;
@@ -20,7 +20,11 @@ public class Statistics {
     private HashMap<String, Integer> browserStats;
     private long totalVisits; //Добавлено для подсчета общего количества посещений
     private long errorRequests; //Добавлено для подсчета ошибочных запросов
-    private HashSet<String> uniqueUserIPs; //Добавлено для хранения уникальных IP-адресов
+    //Добавлено для хранения количества посещений для каждого пользователя, uniqueUserIPs удален
+    private HashMap<String, Integer> userIPsCount;
+    private HashMap<LocalDateTime, Integer> visitsSecond; //Добавлено для хранения посещений по секундам
+    private HashSet<String> referrerDomains; //Добавлено для хранения доменов referrer
+
 
     public Statistics() {
         this.totalTraffic = 0;
@@ -32,7 +36,9 @@ public class Statistics {
         this.browserStats = new HashMap<>();
         this.totalVisits = 0;
         this.errorRequests = 0;
-        this.uniqueUserIPs = new HashSet<>();
+        this.visitsSecond = new HashMap<>();
+        this.referrerDomains = new HashSet<>();
+        this.userIPsCount = new HashMap<>();
     }
 
     public void addEntry(LogEntry entry) {
@@ -45,7 +51,13 @@ public class Statistics {
         String userAgent = String.valueOf(entry.getUserAgent());
         if (!UserAgent.isBot(userAgent)) {
             totalVisits++;
-            uniqueUserIPs.add(entry.getIpAddr());
+
+            LocalDateTime currentSecond = entry.getDateTime().
+                    withNano(0).withSecond(entry.getDateTime().getSecond());
+            //Обновляем счетчик посещений для данной секунды
+            visitsSecond.put(currentSecond,
+                    visitsSecond.getOrDefault(currentSecond, 0) + 1);
+            userIPsCount.put(entry.getIpAddr(), userIPsCount.getOrDefault(entry.getIpAddr(), 0) + 1);
         }
         if (entry.getResponseCode() >= 400)
             errorRequests++;
@@ -59,6 +71,12 @@ public class Statistics {
                 osStats.put(os, osStats.getOrDefault(os, 0) + 1);
             for (String browser : entry.getUserAgent().getBrowser())
                 browserStats.put(browser, browserStats.getOrDefault(browser, 0) + 1);
+        }
+        //Извлекаем домен из URL
+        if (entry.getReferer() != null) {
+            Matcher matcher = Pattern.compile("(?<=\\/\\/)([^\\/]+)").matcher(entry.getReferer());
+            if (matcher.find())
+                referrerDomains.add(matcher.group(1));
         }
     }
 
@@ -152,10 +170,25 @@ public class Statistics {
 
     //Метод расчёта средней посещаемости одним пользователем
     public double getAverageVisitsUser() {
-        //Проверка на наличие уникальных пользователей
-        if (uniqueUserIPs.isEmpty())
+        //используем userIPsCount вместо uniqueUserIPs
+        if (userIPsCount.isEmpty())
             return 0;
-        //Делим общее количество посещений на количество уникальных IP
-        return (double) totalVisits / uniqueUserIPs.size();
+        return (double) totalVisits / userIPsCount.size();
+    }
+
+    //Метод расчёта пиковой посещаемости сайта в секунду
+    public int getMaxVisitsSecond() {
+        return visitsSecond.values().stream().max(Integer::compareTo).orElse(0);
+    }
+
+    //Метод получения списка сайтов со ссылками на текущий сайт
+    public List<String> getReferrerSites() {
+        List<String> referrerSites = new ArrayList<>(referrerDomains);
+        return referrerSites;
+    }
+
+    //Метод расчета максимальной посещаемости одним пользователем
+    public int getMaxVisitsByUser() {
+        return userIPsCount.values().stream().max(Integer::compareTo).orElse(0);
     }
 }
